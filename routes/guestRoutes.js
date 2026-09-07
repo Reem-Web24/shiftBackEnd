@@ -2,6 +2,16 @@ const express = require("express");
 const router = express.Router();
 const Guest = require("../models/Guest");
 
+// 0. جلب قائمة كل المدعوين
+router.get("/", async (req, res) => {
+  try {
+    const guests = await Guest.find();
+    res.status(200).json({ success: true, count: guests.length, data: guests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // 1. إضافة ضيف جديد
 router.post("/", async (req, res) => {
   try {
