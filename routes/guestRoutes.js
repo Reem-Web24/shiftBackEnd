@@ -3,6 +3,7 @@ const router = express.Router();
 const Guest = require("../models/Guest");
 
 // 0. جلب قائمة كل المدعوين
+// جلب قائمة كل المدعوين
 router.get("/", async (req, res) => {
   try {
     const guests = await Guest.find();
