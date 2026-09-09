@@ -7,6 +7,9 @@ const connectDB = require("./db");
 
 const app = express();
 
+// حل مشكلة Rate Limit على منصات الاستضافة مثل Render
+app.set("trust proxy", 1);
+
 // الاتصال بقاعدة البيانات
 connectDB();
 
@@ -24,7 +27,7 @@ app.use(limiter);
 app.use(cors());
 app.use(express.json());
 
-// Routes (تم تعديل المسار هنا ليطابق /api/events)
+// Routes (المسار الخاص بالضيوف)
 app.use("/api/events", require("./routes/guestRoutes"));
 
 const PORT = process.env.PORT || 5000;
