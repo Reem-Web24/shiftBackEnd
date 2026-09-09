@@ -24,8 +24,8 @@ app.use(limiter);
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use("/api/guests", require("./routes/guestRoutes"));
+// Routes (تم تعديل المسار هنا ليطابق /api/events)
+app.use("/api/events", require("./routes/guestRoutes"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
