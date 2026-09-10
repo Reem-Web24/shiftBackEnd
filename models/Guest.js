@@ -8,7 +8,7 @@ const guestSchema = new mongoose.Schema(
     companions: { type: Number, default: 0 },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "declined"],
+      enum: ["pending", "confirmed", "declined", "قادمة", "مؤكد", "معتذر"],
       default: "pending",
     },
     invitationCard: { type: String },
