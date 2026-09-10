@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
 
+// جدول الضيوف
 const guestSchema = new mongoose.Schema(
   {
     name: { type: String, required: false, default: "بدون اسم" },
     phone: { type: String, required: false, default: "0000000000" },
-    title: { type: String }, // في حال كنتِ ترسلين اسم المناسبة
-    date: { type: String }, // تاريخ المناسبة
+    title: { type: String },
+    date: { type: String },
     invitationCode: { type: String, unique: true, sparse: true },
     companions: { type: Number, default: 0 },
     status: {
@@ -19,4 +20,18 @@ const guestSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model("Guest", guestSchema);
+// جدول المناسبات الجديد
+const eventSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true }, // اسم المناسبة
+    date: { type: String, required: true }, // تاريخ المناسبة
+    status: { type: String, default: "قادمة" },
+  },
+  { timestamps: true },
+);
+
+// تصدير المودلين معاً لضمان عدم حدوث أي خطأ في مسارات السيرفر
+const Guest = mongoose.model("Guest", guestSchema);
+const Event = mongoose.model("Event", eventSchema);
+
+module.exports = { Guest, Event };

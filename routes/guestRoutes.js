@@ -1,10 +1,39 @@
 const express = require("express");
 const router = express.Router();
-const Guest = require("../models/Guest");
+const { Guest, Event } = require("../models/Guest"); // استدعاء المودلين معاً
 
-// 0. جلب قائمة كل المدعوين
-// جلب قائمة كل المدعوين
+// ==========================================
+// مسارات المناسبات (Events) - لإصلاح مشكلة صفحة إدارة المناسبات
+// ==========================================
+
+// 0. جلب قائمة كل المناسبات
 router.get("/", async (req, res) => {
+  try {
+    const events = await Event.find();
+    res.status(200).json({ success: true, count: events.length, data: events });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// 1. إضافة مناسبة جديدة
+router.post("/", async (req, res) => {
+  try {
+    const newEvent = new Event(req.body);
+    await newEvent.save();
+    res.status(201).json({ success: true, data: newEvent });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+
+// ==========================================
+// مسارات الضيوف (Guests) - الوظائف السابقة كما هي
+// ==========================================
+
+// جلب قائمة كل المدعوين
+router.get("/guests", async (req, res) => {
   try {
     const guests = await Guest.find();
     res.status(200).json({ success: true, count: guests.length, data: guests });
@@ -13,8 +42,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-// 1. إضافة ضيف جديد
-router.post("/", async (req, res) => {
+// إضافة ضيف جديد
+router.post("/guests", async (req, res) => {
   try {
     const newGuest = new Guest(req.body);
     await newGuest.save();
@@ -24,8 +53,8 @@ router.post("/", async (req, res) => {
   }
 });
 
-// 2. جلب بيانات ضيف معين
-router.get("/:id", async (req, res) => {
+// جلب بيانات ضيف معين
+router.get("/guests/:id", async (req, res) => {
   try {
     const guest = await Guest.findById(req.params.id);
     if (!guest)
@@ -38,8 +67,8 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// 3. تحديث حالة الحضور
-router.put("/:id/status", async (req, res) => {
+// تحديث حالة الحضور للضيف
+router.put("/guests/:id/status", async (req, res) => {
   try {
     const { status } = req.body;
     const updatedGuest = await Guest.findByIdAndUpdate(
@@ -53,8 +82,8 @@ router.put("/:id/status", async (req, res) => {
   }
 });
 
-// مسح الباركود عند حضور الضيف للقاعة (يستخدم مرة واحدة فقط)
-router.post("/scan/:id", async (req, res) => {
+// مسح الباركود عند حضور الضيف للقاعة
+router.post("/guests/scan/:id", async (req, res) => {
   try {
     const guest = await Guest.findById(req.params.id);
     if (!guest)
@@ -75,7 +104,7 @@ router.post("/scan/:id", async (req, res) => {
     await guest.save();
 
     res.json({
-      success: true,
+      success:,
       message: "تم تسجيل الحضور بنجاح أهلاً بك!",
       data: guest,
     });
