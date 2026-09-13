@@ -5,35 +5,29 @@ require("dotenv").config();
 
 const app = express();
 
-// تفعيل الCORS لسحب الطلبات من Vercel بدون مشاكل
+// يجب أن يكون الـ CORS في أول سطر للـ middleware قبل الـ routes
 app.use(
   cors({
     origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
 app.use(express.json());
 
-// الاتصال بقاعدة البيانات
 const MONGO_URI = process.env.MONGO_URI;
 
 mongoose
   .connect(MONGO_URI)
-  .then(() => {
-    console.log("MongoDB Connected Successfully...");
-  })
-  .catch((err) => {
-    console.error("Database connection error:", err.message);
-  });
+  .then(() => console.log("MongoDB Connected Successfully..."))
+  .catch((err) => console.error("Database connection error:", err.message));
 
-// مسار تجريبي للتأكد من عمل السيرفر
 app.get("/", (req, res) => {
   res.send("Your service is live 🚀");
 });
 
-// ربط مسارات الضيوف والمناسبات
+// مسارات الضيوف والمناسبات
 const guestRoutes = require("./routes/guestRoutes");
 app.use("/api/events", guestRoutes);
 
