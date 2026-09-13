@@ -5,7 +5,7 @@ require("dotenv").config();
 
 const app = express();
 
-// 1. تفعيل الـ CORS بجميع الصلاحيات للربط مع Vercel
+// تفعيل الCORS لسحب الطلبات من Vercel بدون مشاكل
 app.use(
   cors({
     origin: "*",
@@ -16,7 +16,7 @@ app.use(
 
 app.use(express.json());
 
-// 2. الاتصال بقاعدة البيانات MongoDB
+// الاتصال بقاعدة البيانات
 const MONGO_URI = process.env.MONGO_URI;
 
 mongoose
@@ -28,16 +28,15 @@ mongoose
     console.error("Database connection error:", err.message);
   });
 
-// 3. مسار تجريبي للتأكد أن السيرفر يعمل
+// مسار تجريبي للتأكد من عمل السيرفر
 app.get("/", (req, res) => {
   res.send("Your service is live 🚀");
 });
 
-// 4. ربط مسارات المناسبات والضيوف بشكل صحيح تماماً
+// ربط مسارات الضيوف والمناسبات
 const guestRoutes = require("./routes/guestRoutes");
 app.use("/api/events", guestRoutes);
 
-// 5. تشغيل السيرفر
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
