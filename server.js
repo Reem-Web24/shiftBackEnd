@@ -1,36 +1,43 @@
 const express = require("express");
-const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
+const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
-const connectDB = require("./db");
 
 const app = express();
 
-// حل مشكلة Rate Limit على منصات الاستضافة مثل Render
-app.set("trust proxy", 1);
+// إعدادات الـ CORS والسماح بالاتصال من أي Frontend (مثل Vercel)
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
-// الاتصال بقاعدة البيانات
-connectDB();
-
-// حزم وتعديلات الأمان (Security Middleware)
-app.use(helmet());
-
-// تقييد عدد الطلبات لمنع هجمات التخمين والضغط (Rate Limiting)
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 دقيقة
-  max: 100, // أقصى عدد طلبات لكل IP خلال 15 دقيقة
-});
-app.use(limiter);
-
-// تفعيل الـ CORS والـ JSON Middleware
-app.use(cors());
 app.use(express.json());
 
-// Routes (المسار الخاص بالضيوف)
-app.use("/api/events", require("./routes/guestRoutes"));
+// الاتصال بقاعدة البيانات MongoDB
+const MONGO_URI = process.env.MONGO_URI;
 
-const PORT = process.env.PORT || 5000;
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log("MongoDB Connected Successfully...");
+  })
+  .catch((err) => {
+    console.error("Database connection error:", err.message);
+  });
+
+// مسار تجريبي للتأكد أن السيرفر يعمل
+app.get("/", (req, res) => {
+  res.send("Your service is live 🚀");
+});
+
+// استيراد مسارات الـ Events أو المناسبات (تأكدبي من مسار الـ routes عندك)
+// const eventRoutes = require('./routes/eventRoutes');
+// app.use('/api/events', eventRoutes);
+
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
