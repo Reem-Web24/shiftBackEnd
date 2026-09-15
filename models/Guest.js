@@ -3,6 +3,13 @@ const mongoose = require("mongoose");
 // جدول الضيوف
 const guestSchema = new mongoose.Schema(
   {
+    // 👇 الحقل الجديد: يربط كل مدعو بمناسبته
+    eventId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Event",
+      required: true,
+    },
+
     name: { type: String, required: false, default: "بدون اسم" },
     phone: { type: String, required: false, default: "0000000000" },
     title: { type: String },

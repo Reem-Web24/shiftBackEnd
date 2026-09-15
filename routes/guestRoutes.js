@@ -26,6 +26,8 @@ router.post("/", async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 });
+
+// 2. جلب مناسبة واحدة بالـ ID
 router.get("/:id", async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
@@ -39,23 +41,39 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
 // ==========================================
 // مسارات الضيوف (Guests)
 // ==========================================
 
-// جلب قائمة كل المدعوين
+// جلب قائمة المدعوين — يدعم فلترة حسب المناسبة عبر ?eventId=...
+// مثال: /api/events/guests?eventId=6aa2f731de84c24df742f22c
 router.get("/guests", async (req, res) => {
   try {
-    const guests = await Guest.find();
+    const filter = {};
+
+    // 👇 لو الرابط فيه eventId، نفلتر المدعوين حسب هذي المناسبة فقط
+    if (req.query.eventId) {
+      filter.eventId = req.query.eventId;
+    }
+
+    const guests = await Guest.find(filter);
     res.status(200).json({ success: true, count: guests.length, data: guests });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// إضافة ضيف جديد
+// إضافة ضيف جديد (لازم يترسل eventId جوا body الطلب)
 router.post("/guests", async (req, res) => {
   try {
+    if (!req.body.eventId) {
+      return res.status(400).json({
+        success: false,
+        message: "لازم تحدد eventId عند إضافة مدعو",
+      });
+    }
+
     const newGuest = new Guest(req.body);
     await newGuest.save();
     res.status(201).json({ success: true, data: newGuest });
