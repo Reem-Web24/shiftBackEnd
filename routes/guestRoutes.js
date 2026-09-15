@@ -26,7 +26,19 @@ router.post("/", async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 });
-
+router.get("/:id", async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ success: false, message: "المناسبة غير موجودة" });
+    }
+    res.status(200).json({ success: true, data: event });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 // ==========================================
 // مسارات الضيوف (Guests)
 // ==========================================
