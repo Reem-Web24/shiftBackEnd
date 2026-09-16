@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 // جدول الضيوف
 const guestSchema = new mongoose.Schema(
   {
-    // 👇 الحقل الجديد: يربط كل مدعو بمناسبته
     eventId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Event",
@@ -27,17 +26,25 @@ const guestSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// جدول المناسبات الجديد
+// جدول المناسبات
 const eventSchema = new mongoose.Schema(
   {
     title: { type: String, required: true }, // اسم المناسبة
     date: { type: String, required: true }, // تاريخ المناسبة
     status: { type: String, default: "قادمة" },
+
+    // 👇 إعدادات خاصة بكل مناسبة (تُحفظ من لوحة التحكم)
+    invitationCard: { type: String, default: null }, // صورة كرت الدعوة (Data URL)
+    locationLink: { type: String, default: "" }, // رابط موقع القاعة
+    declineMessage: {
+      type: String,
+      default:
+        "نشكر لكم اهتمامكم، ونتفهم ظروفكم. نتمنى لكم دوام الصحة والسعادة.",
+    },
   },
   { timestamps: true },
 );
 
-// تصدير المودلين معاً لضمان عدم حدوث أي خطأ في مسارات السيرفر
 const Guest = mongoose.model("Guest", guestSchema);
 const Event = mongoose.model("Event", eventSchema);
 

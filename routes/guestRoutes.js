@@ -147,4 +147,25 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// 3. تحديث إعدادات المناسبة (كرت الدعوة، رابط الموقع، رسالة الاعتذار)
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedEvent = await Event.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true },
+    );
+
+    if (!updatedEvent) {
+      return res
+        .status(404)
+        .json({ success: false, message: "المناسبة غير موجودة" });
+    }
+
+    res.status(200).json({ success: true, data: updatedEvent });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;
