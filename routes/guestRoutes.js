@@ -27,32 +27,18 @@ router.post("/", async (req, res) => {
   }
 });
 
-// 2. جلب مناسبة واحدة بالـ ID
-router.get("/:id", async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    if (!event) {
-      return res
-        .status(404)
-        .json({ success: false, message: "المناسبة غير موجودة" });
-    }
-    res.status(200).json({ success: true, data: event });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
 // ==========================================
 // مسارات الضيوف (Guests)
+// تنبيه: هذي المسارات المحددة (guests...) لازم تكون قبل
+// مسار GET /:id العام تحت، وإلا إكسبرس بيفسّر كلمة "guests"
+// كأنها معرّف مناسبة (id) ويصير خطأ 500.
 // ==========================================
 
 // جلب قائمة المدعوين — يدعم فلترة حسب المناسبة عبر ?eventId=...
-// مثال: /api/events/guests?eventId=6aa2f731de84c24df742f22c
 router.get("/guests", async (req, res) => {
   try {
     const filter = {};
 
-    // 👇 لو الرابط فيه eventId، نفلتر المدعوين حسب هذي المناسبة فقط
     if (req.query.eventId) {
       filter.eventId = req.query.eventId;
     }
@@ -133,10 +119,29 @@ router.post("/guests/scan/:id", async (req, res) => {
     await guest.save();
 
     res.json({
-      success: true, // تم تصحيحها هنا
+      success: true,
       message: "تم تسجيل الحضور بنجاح أهلاً بك!",
       data: guest,
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ==========================================
+// 2. جلب مناسبة واحدة بالـ ID
+// تنبيه: هذا المسار العام لازم يكون آخر شي بالملف، بعد كل
+// مسارات /guests المحددة، وإلا يبلعها ويسبب أخطاء.
+// ==========================================
+router.get("/:id", async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ success: false, message: "المناسبة غير موجودة" });
+    }
+    res.status(200).json({ success: true, data: event });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
