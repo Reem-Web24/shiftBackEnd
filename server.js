@@ -5,6 +5,11 @@ require("dotenv").config();
 
 const app = express();
 
+// إجبار Node على استخدام DNS جوجل (يحل مشاكل querySrv ECONNREFUSED
+// اللي تصير أحياناً بسبب إعدادات شبكة/مضيف معينة)
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 // يجب أن يكون الـ CORS في أول سطر للـ middleware قبل الـ routes
 app.use(
   cors({
@@ -14,9 +19,10 @@ app.use(
   }),
 );
 
-app.use(express.json());
-const dns = require("dns");
-dns.setServers(["8.8.8.8", "8.8.4.4"]);
+// 👇 رفعنا الحد الافتراضي (100kb) عشان يستوعب صور بطاقة الدعوة
+// المحوّلة إلى Base64، واللي ممكن يوصل حجمها لعدة ميجابايت
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 const MONGO_URI = process.env.MONGO_URI;
 
