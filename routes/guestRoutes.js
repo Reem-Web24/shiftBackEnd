@@ -128,6 +128,21 @@ router.post("/guests/scan/:id", async (req, res) => {
   }
 });
 
+// حذف ضيف معيّن
+router.delete("/guests/:id", async (req, res) => {
+  try {
+    const deletedGuest = await Guest.findByIdAndDelete(req.params.id);
+    if (!deletedGuest) {
+      return res
+        .status(404)
+        .json({ success: false, message: "الضيف غير موجود" });
+    }
+    res.status(200).json({ success: true, message: "تم حذف الضيف بنجاح" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ==========================================
 // 2. جلب مناسبة واحدة بالـ ID
 // تنبيه: هذا المسار العام لازم يكون آخر شي بالملف، بعد كل
@@ -165,6 +180,29 @@ router.put("/:id", async (req, res) => {
     res.status(200).json({ success: true, data: updatedEvent });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+// 4. حذف مناسبة كاملة (وكل مدعويها معها تلقائياً)
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedEvent = await Event.findByIdAndDelete(req.params.id);
+
+    if (!deletedEvent) {
+      return res
+        .status(404)
+        .json({ success: false, message: "المناسبة غير موجودة" });
+    }
+
+    // نحذف كل المدعوين المرتبطين بهذي المناسبة عشان ما تبقى بيانات يتيمة
+    await Guest.deleteMany({ eventId: req.params.id });
+
+    res.status(200).json({
+      success: true,
+      message: "تم حذف المناسبة وكل مدعويها بنجاح",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
